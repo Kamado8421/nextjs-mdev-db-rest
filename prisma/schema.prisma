@@ -1,0 +1,41 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+
+model User {
+  id          String            @id @default(cuid())
+  email       String            @unique
+  name        String
+  isAdmin     Boolean           @default(false)
+  urlProfile  String?           @default("https://i.pinimg.com/236x/21/9e/ae/219eaea67aafa864db091919ce3f5d82.jpg")
+  dataManagers DataUserManager[] // relacionamento reverso
+}
+
+model DataUserManager {
+  id            String           @id @default(cuid())
+  userId        String
+  user          User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessKey     String           @unique        @default(uuid())
+  dateAt        DateTime         @updatedAt
+  totalRequests Int              @default(0)
+  dataTable     UserDataTable[] // relacionamento reverso
+}
+
+model UserDataTable {
+  id        String           @id @default(cuid())
+  ownerId   String
+  owner     DataUserManager  @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  jid       String           @unique
+  username  String?
+  isPremium Boolean          @default(false)
+  isBanned  Boolean          @default(false)
+  isOwner   Boolean          @default(false)
+  money     Int              @default(0)
+  xp        Int              @default(10)
+}
